@@ -1,0 +1,6 @@
+{
+    "rewrites": [
+      { "source": "/e-plantShopping/(.*)", "destination": "/index.html" }
+    ]
+  }
+  
