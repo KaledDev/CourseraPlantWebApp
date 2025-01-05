@@ -309,9 +309,9 @@ const handlePlantsClick = (e) => {
     {/* Badge de quantité */}
     <span
       style={{
-        position: 'absolute',
-        top: '0',
-        right: '0',
+        position: 'relative',
+        top: -60,
+        right: -10,
         backgroundColor: '#ff0000', // couleur du badge
         color: '#fff',
         borderRadius: '50%',
