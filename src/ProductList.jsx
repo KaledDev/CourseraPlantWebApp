@@ -1,9 +1,20 @@
 import React, { useState,useEffect } from 'react';
+import { useDispatch, useSelector  } from 'react-redux';
 import './ProductList.css'
 import CartItem from './CartItem';
+import { addItem } from './CartSlice';
+import { Leaf, ShoppingCart, ChevronDown } from 'lucide-react';
 function ProductList() {
+    const dispatch = useDispatch();
     const [showCart, setShowCart] = useState(false); 
+    const [addedToCart, setAddedToCart] = useState({});
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
+
+        // Access cart state from Redux store
+        const cartItems = useSelector((state) => state.cart.items); // Assuming 'items' holds cart items
+
+        // Calculate the total quantity in the cart
+        const totalQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
 
     const plantsArray = [
         {
@@ -232,6 +243,7 @@ function ProductList() {
     fontSize: '30px',
     textDecoration: 'none',
    }
+   
    const handleCartClick = (e) => {
     e.preventDefault();
     setShowCart(true); // Set showCart to true when cart icon is clicked
@@ -245,6 +257,13 @@ const handlePlantsClick = (e) => {
    const handleContinueShopping = (e) => {
     e.preventDefault();
     setShowCart(false);
+  };
+  const handleAddToCart = (product) => {
+    dispatch(addItem(product));
+    setAddedToCart((prevState) => ({
+       ...prevState,
+       [product.name]: true, // Set the product name as key and value as true to indicate it's added to cart
+     }));
   };
     return (
         <div>
@@ -263,18 +282,85 @@ const handlePlantsClick = (e) => {
             </div>
             <div style={styleObjUl}>
                 <div> <a href="#" onClick={(e)=>handlePlantsClick(e)} style={styleA}>Plants</a></div>
-                <div> <a href="#" onClick={(e) => handleCartClick(e)} style={styleA}><h1 className='cart'><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" id="IconChangeColor" height="68" width="68"><rect width="156" height="156" fill="none"></rect><circle cx="80" cy="216" r="12"></circle><circle cx="184" cy="216" r="12"></circle><path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" id="mainIconPathAttribute"></path></svg></h1></a></div>
+                <div> 
+                <a href="#" onClick={(e) => handleCartClick(e)} style={styleA}>
+  <h1 className="cart" style={{ position: 'relative' }}>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 256 256"
+      id="IconChangeColor"
+      height="68"
+      width="68"
+    >
+      <rect width="156" height="156" fill="none"></rect>
+      <circle cx="80" cy="216" r="12"></circle>
+      <circle cx="184" cy="216" r="12"></circle>
+      <path
+        d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8"
+        fill="none"
+        stroke="#faf9f9"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        id="mainIconPathAttribute"
+      ></path>
+    </svg>
+
+    {/* Badge de quantité */}
+    <span
+      style={{
+        position: 'absolute',
+        top: '0',
+        right: '0',
+        backgroundColor: '#ff0000', // couleur du badge
+        color: '#fff',
+        borderRadius: '50%',
+        width: '20px',
+        height: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '12px',
+        fontWeight: 'bold',
+      }}
+    >
+      {totalQuantity} {/* Remplacez `quantity` par la variable qui contient la quantité */}
+    </span>
+  </h1>
+</a>
+
+                </div>
             </div>
         </div>
-        {!showCart? (
-        <div className="product-grid">
-
-
+        {!showCart ? (
+                <div className="product-grid">
+                    {plantsArray.map((category, index) => (
+                        <div key={index}>
+                            <h1><div>{category.category}</div></h1>
+                            <div className="product-list">
+                                {category.plants.map((plant, plantIndex) => (
+                                    <div className="product-card" key={plantIndex}>
+                                        <img className="product-image" src={plant.image} alt={plant.name} />
+                                        <div className="product-title">{plant.name}</div>
+                                        <div className="product-description">{plant.description}</div>
+                                        <div className="product-cost">{plant.cost}</div>
+                                        <button 
+                  className={`product-button ${cartItems.some(item => item.name === plant.name) ? 'added' : ''}`}
+                  onClick={() => handleAddToCart(plant)}
+                  disabled={cartItems.some(item => item.name === plant.name)}
+                >
+                  {cartItems.some(item => item.name === plant.name) ? 'Added to Cart' : 'Add to Cart'}
+                </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <CartItem onContinueShopping={handleContinueShopping} />
+            )}
         </div>
- ) :  (
-    <CartItem onContinueShopping={handleContinueShopping}/>
-)}
-    </div>
     );
 }
 
